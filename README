@@ -1,0 +1,112 @@
+Authorize.net - PHP API Class
+Copyright (c) 2010, Michael Botsko - Botsko.net, LLC
+Released under the MPL 1.1
+
+Introduction
+============================
+
+Not quite satisfied with existing classes (that I could find) I wrote this
+class for a recent project. Written using PHP5, this provides a very clean way
+for your projects to interact with the Authorize.net AIM API.
+
+
+Basics
+============================
+
+First, simply create an instance after including the class file in your code.
+
+$pay = new Authorizenet($trxn); // see below for what $trxn is
+
+To enable debug mode (which sends to the test url, etc), simple set debug to
+true:
+
+$pay->debug = true;
+
+
+Payment Transaction
+============================
+
+You need to provide an array of transaction values to the class. You must
+provide your Authorize.net login and transaction key (and password if needed)
+as well as the transaction details - customer, amounts, etc.
+
+$trxn = array(
+	'x_login'		=> 'LOGIN',
+	'x_tran_key'	=> 'TRANSACTION_KEY',
+	'x_first_name'	=> '',
+	'x_last_name'	=> '',
+	'x_email'		=> '',
+	'x_card_num'	=> '',
+	'x_amount'		=> '',
+	'x_description'	=> ''',
+	'x_exp_date'	=> '',
+	'x_card_code'	=> ''
+);
+
+$pay = new Authorizenet($trxn);
+$pay->process(); // Actually process the transaction against API
+
+
+// Check if this was approved, or not
+if($pay->isApproved()){
+	// stuff
+} else {
+	// stuff
+}
+
+
+You may return the full response array in different ways:
+
+// "code" named:
+$pay->getCodeNamedResponseArray();
+
+This returns the array with key names that are valid variable names - all lower
+case, no spaces, etc. These can be used easily with the included SQL file.
+
+// "nice" names:
+$pay->getNiceNamedResponseArray();
+
+This returns the array with human-readable key names.
+
+// raw:
+$pay->getResponseArray();
+
+This returns the array that was provided back from Authorize.net, no key changes.
+
+
+Using Peregrine
+http://github.com/botskonet/Peregrine
+============================
+
+Peregrine is a PHP array security class that will be useful when validating
+your form data, as well as securely accessing the returned result data.
+
+For example, you can simply pass the results of the above array functions
+into the sanitize function of Peregrine, and use the secure methods to access
+to the response data.
+
+
+Testing
+============================
+
+Test Card Numbers:
+370000000000002	 - AMEX
+6011000000000012 - DISCOVER
+5424000000000015 - MC
+4007000000027	 - VISA
+4222222222222	 - INVALID
+
+
+To-dos
+============================
+
+I'd like to expand the functionality of this class with the following items:
+
+- Integrated Peregrine support
+- Ability to use constants for Auth.net credentials instead of array element
+- Internal validation for incoming data
+- Expanded method list for accessing response data
+- Support for other Auth.net features like CIM, Recurring billing
+- Unit testing.
+
+If you're willing to help, please fork and submit any patches!
