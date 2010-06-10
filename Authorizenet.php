@@ -24,6 +24,59 @@ class Authorizenet {
 	public $debug = false;
 
 	/**
+	 * @var boolean Toggles mock mode - fake approved request, and never contact auth.net
+	 * @access public
+	 */
+	public $mock = false;
+
+	/**
+	 * @var boolean An array of a mock response
+	 * @access private
+	 */
+	private $mock_reponse = array(
+		0 => '1',
+		1 => '1',
+		2 => '1',
+		3 => '(TESTMODE) This transaction has been approved.',
+		4 => '000000',
+		5 => 'P',
+		6 => '0',
+		7 => '',
+		8 => 'Mock response.',
+		9 => '75.00',
+		10 => 'CC',
+		11 => 'auth_only',
+		12 => '',
+		13 => 'John',
+		14 => 'Smith',
+		15 => 'SomeCompany',
+		16 => '1234 West Main St',
+		17 => 'Some City',
+		18 => 'CA',
+		19 => '12345',
+		20 => 'US',
+		21 => '555-555-5555',
+		22 => '555-555-5555',
+		23 => 'someone@somedomain.com',
+		24 => '',
+		25 => '',
+		26 => '',
+		27 => '',
+		28 => '',
+		29 => '',
+		30 => '',
+		31 => '',
+		32 => '',
+		33 => '',
+		34 => '',
+		35 => '',
+		36 => '',
+		37 => 'F8B3EFAAD9428554CC27C140B7648EFA',
+		38 => '',
+		39 => ''
+	);
+
+	/**
 	 * @var array Holds human readable key names for response array
 	 * @access private
 	 */
@@ -195,22 +248,28 @@ class Authorizenet {
 
 		$this->forceParameters();
 
-		// execute API calls
-		$ch = curl_init( ($this->debug ? self::URL_LIVE : self::URL_TEST ) );
-		curl_setopt($ch, CURLOPT_HEADER, 0);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildParamString());
-		$response = urldecode(curl_exec($ch));
+		if(!$this->mock){
 
-		if (curl_errno($ch)) {
-			$response[3] = curl_error($ch);
-			return false;
-		}
-		else {
-			curl_close ($ch);
-		}
+			// execute API calls
+			$ch = curl_init( ($this->debug ? self::URL_LIVE : self::URL_TEST ) );
+			curl_setopt($ch, CURLOPT_HEADER, 0);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildParamString());
+			$response = urldecode(curl_exec($ch));
 
-		$this->response = explode('|', $response);
+			if (curl_errno($ch)) {
+				$response[3] = curl_error($ch);
+				return false;
+			}
+			else {
+				curl_close ($ch);
+			}
+
+			$this->response = explode('|', $response);
+
+		} else {
+			$this->response = $this->mock_reponse;
+		}
 
 		return true;
 
@@ -257,50 +316,5 @@ class Authorizenet {
 	public function getResponseReason(){
 		return $this->getKey(3);
 	}
-
-/**
-Sample response array:
-'Response Code' => string '1' (length=1)
-'Response Subcode' => string '1' (length=1)
-'Response Reason Code' => string '1' (length=1)
-'Response Reason Text' => string '(TESTMODE) This transaction has been approved.' (length=46)
-'Approval Code' => string '000000' (length=6)
-'AVS Result Code' => string 'P' (length=1)
-'Transaction ID' => string '0' (length=1)
-'Invoice Number' => string '' (length=0)
-'Description' => string '' (length=0)
-'Amount' => string '75.00' (length=5)
-'Method' => string 'CC' (length=2)
-'Transaction Type' => string 'auth_only' (length=9)
-'Customer ID' => string '' (length=0)
-'Cardholder First Name' => string 'John' (length=4)
-'Cardholder Last Name' => string 'Smith' (length=5)
-'Company' => string '' (length=0)
-'Billing Address' => string '1234 West Main St.' (length=18)
-'City' => string 'Some City' (length=9)
-'State' => string 'CA' (length=2)
-'Zip' => string '12345' (length=5)
-'Country' => string 'US' (length=2)
-'Phone' => string '555-555-5555' (length=12)
-'Fax' => string '' (length=0)
-'Email' => string 'someone@somedomain.com' (length=22)
-'Ship to First Name' => string '' (length=0)
-'Ship to Last Name' => string '' (length=0)
-'Ship to Company' => string '' (length=0)
-'Ship to Address' => string '' (length=0)
-'Ship to City' => string '' (length=0)
-'Ship to State' => string '' (length=0)
-'Ship to Zip' => string '' (length=0)
-'Ship to Country' => string '' (length=0)
-'Tax Amount' => string '' (length=0)
-'Duty Amount' => string '' (length=0)
-'Freight Amount' => string '' (length=0)
-'Tax Exempt Flag' => string '' (length=0)
-'PO Number' => string '' (length=0)
-'MD5 Hash' => string 'F8B3EFAAD9428554CC27C140B7648EFA' (length=32)
-'Card Code (CVV2/CVC2/CID) Response Code' => string '' (length=0)
-'Cardholder Authentication Verification Value (CAVV) Response Code' => string '' (length=0)
-*/
-
 }
 ?>

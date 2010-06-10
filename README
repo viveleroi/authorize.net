@@ -2,12 +2,16 @@ Authorize.net - PHP API Class
 Copyright (c) 2010, Michael Botsko - Botsko.net, LLC
 Released under the MPL 1.1
 
+
 Introduction
 ============================
 
 Not quite satisfied with existing classes (that I could find) I wrote this
 class for a recent project. Written using PHP5, this provides a very clean way
 for your projects to interact with the Authorize.net AIM API.
+
+The latest version also includes a new class for working with the Authorize.net
+Automated Recurring Billing (ARB) API.
 
 
 Basics
@@ -23,7 +27,8 @@ true:
 $pay->debug = true;
 
 
-Payment Transaction
+
+Single Payment Transaction
 ============================
 
 You need to provide an array of transaction values to the class. You must
@@ -45,7 +50,6 @@ $trxn = array(
 
 $pay = new Authorizenet($trxn);
 $pay->process(); // Actually process the transaction against API
-
 
 // Check if this was approved, or not
 if($pay->isApproved()){
@@ -74,6 +78,84 @@ $pay->getResponseArray();
 This returns the array that was provided back from Authorize.net, no key changes.
 
 
+
+Recurring Billing - Creating
+============================
+
+The second class is for working with the recurring billing API. This first example
+covers how to create a new subscription.
+
+$trxn = array(
+	'x_login'				=> 'LOGIN',
+	'x_tran_key'			=> 'TRANSACTION_KEY',
+	'x_ref_id'				=> '', // your reference number for account
+	'x_subsc_name'			=> '', // Provide a name for this subscription
+	'x_length'				=> '1', // Length of units
+	'x_unit'				=> 'months', // days, months
+	'x_start_date'			=> '', // start date (YYYY-MM-DD)
+	'x_total_occurrences'	=> 9999, // eternal length of subscription
+	'x_trial_occurrences'	=> 0, // billing occurrences during trial
+	'x_trial_amount'		=> 0,
+	'x_first_name'			=> '',
+	'x_last_name'			=> '',
+	'x_card_num'			=> '',
+	'x_amount'				=> '',
+	'x_exp_date'			=> '' // Card expiration, in YYYY-MM format
+);
+
+$pay = new Authorizenet_recurring($trxn);
+$pay->process();
+
+Just like the single pay methods, you use $pay->isApproved() is check if the
+new recurring billing account was accepted.
+
+There are several ways of seeing additional data returned by Authorize.net:
+
+$pay->refId(); // Returns the reference ID you provided
+$pay->resultCode();
+$pay->responseCode();
+$pay->responseMessage();
+$pay->subscriptionId(); // Keep this, as it must be provided for any update or cancel
+$pay->createOrderHash(); // Internal way of creating unique order hash
+
+
+
+Recurring Billing - Updating
+============================
+
+$trxn = array(
+	'x_login'				=> 'LOGIN',
+	'x_tran_key'			=> 'TRANSACTION_KEY',
+	'x_ref_id'				=> '', // your reference number for account
+	'x_subsc_id'			=> '', // subscription id from ARB creation step
+	'x_card_num'			=> '',
+	'x_amount'				=> '',
+	'x_exp_date'			=> '' // Card expiration, in YYYY-MM format
+);
+
+$pay = new Authorizenet_recurring($trxn);
+$pay->process();
+
+The class will automatically pass the proper update xml request because of
+that sunscription id being provided.
+
+
+
+Recurring Billing - Cancel
+============================
+
+$trxn = array(
+	'x_login'				=> 'LOGIN',
+	'x_tran_key'			=> 'TRANSACTION_KEY',
+	'x_subsc_id'			=> '', // subscription id from ARB creation step
+);
+
+$pay = new Authorizenet_recurring($trxn);
+$pay->cancel();
+$pay->process();
+
+
+
 Using Peregrine
 http://github.com/botskonet/Peregrine
 ============================
@@ -84,6 +166,7 @@ your form data, as well as securely accessing the returned result data.
 For example, you can simply pass the results of the above array functions
 into the sanitize function of Peregrine, and use the secure methods to access
 to the response data.
+
 
 
 Testing
@@ -97,6 +180,7 @@ Test Card Numbers:
 4222222222222	 - INVALID
 
 
+
 To-dos
 ============================
 
@@ -106,7 +190,7 @@ I'd like to expand the functionality of this class with the following items:
 - Ability to use constants for Auth.net credentials instead of array element
 - Internal validation for incoming data
 - Expanded method list for accessing response data
-- Support for other Auth.net features like CIM, Recurring billing
+- Support for other Auth.net features like CIM
 - Unit testing.
 
 If you're willing to help, please fork and submit any patches!
