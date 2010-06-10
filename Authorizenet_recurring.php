@@ -13,6 +13,10 @@
  * http://developer.authorize.net/tools/arberrorcodes/
  */
 
+if(!class_exists('Xml')){
+	require_once('Xml.php');
+}
+
 /**
  * @package Authorize.net
  */
