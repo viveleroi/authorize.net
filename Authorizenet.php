@@ -251,7 +251,7 @@ class Authorizenet {
 		if(!$this->mock){
 
 			// execute API calls
-			$ch = curl_init( ($this->debug ? self::URL_LIVE : self::URL_TEST ) );
+			$ch = curl_init( (!$this->debug ? self::URL_LIVE : self::URL_TEST ) );
 			curl_setopt($ch, CURLOPT_HEADER, 0);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildParamString());
