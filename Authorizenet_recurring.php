@@ -218,6 +218,7 @@ class Authorizenet_recurring extends Authorizenet {
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildXML());
 		curl_setopt($ch, CURLOPT_POST, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
 		$this->response = curl_exec($ch);
 
 		// remove xmlns so that the relative uri doesn't cause errors in simplexml
