@@ -251,10 +251,8 @@ class Authorizenet {
 		if(!$this->mock){
 
 			// execute API calls
-			$ch = curl_init( ($this->debug ? self::URL_LIVE : self::URL_TEST ) );
+			$ch = curl_init( (!$this->debug ? self::URL_LIVE : self::URL_TEST ) );
 			curl_setopt($ch, CURLOPT_HEADER, 0);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $this->buildParamString());
 			$response = urldecode(curl_exec($ch));
@@ -292,8 +290,6 @@ class Authorizenet {
 		return false;
 	}
 
-	// @todo add specific get functions
-
 
 	/**
 	 * Returns a complete approved or not value
@@ -315,7 +311,7 @@ class Authorizenet {
 	 * @return string
 	 * @access public
 	 */
-	public function getResponseReason(){
+	public function responseMessage(){
 		return $this->getKey(3);
 	}
 }

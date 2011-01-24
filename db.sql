@@ -3,8 +3,10 @@
 -- the response data. You can use the returned code array to fill this
 -- through mysql INSERT queries.
 
+DROP TABLE IF EXISTS `payment_logs`;
 CREATE TABLE IF NOT EXISTS `payment_logs` (
   `id` int(10) unsigned NOT NULL auto_increment,
+  `payment_id` int(10) unsigned NOT NULL,
   `response_code` int(1) NOT NULL,
   `response_subcode` int(1) NOT NULL,
   `response_reason_code` int(1) NOT NULL,
@@ -45,5 +47,20 @@ CREATE TABLE IF NOT EXISTS `payment_logs` (
   `hash` varchar(155) NOT NULL,
   `cvv_response_code` varchar(1) NOT NULL,
   `cavv_response_code` varchar(1) NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `payment_id` (`payment_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+DROP TABLE IF EXISTS `payment_logs_recurring`;
+CREATE TABLE IF NOT EXISTS `payment_logs_recurring` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `payment_id` int(10) unsigned NOT NULL,
+  `trxn_type` varchar(6) NOT NULL,
+  `ref_id` int(11) default NULL,
+  `result_code` varchar(55) NOT NULL,
+  `response_code` varchar(55) NOT NULL,
+  `response_message` text NOT NULL,
+  `subscription_id` varchar(55) NOT NULL,
+  `hash` varchar(155) NOT NULL,
   PRIMARY KEY  (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;

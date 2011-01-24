@@ -211,7 +211,7 @@ class Authorizenet_recurring extends Authorizenet {
 		$this->forceParameters();
 
 		// execute API calls
-		$ch = curl_init( ($this->debug ? self::URL_LIVE : self::URL_TEST ) );
+		$ch = curl_init( (!$this->debug ? self::URL_LIVE : self::URL_TEST ) );
 		curl_setopt($ch, CURLOPT_HEADER, 0);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, Array("Content-Type: text/xml"));
@@ -224,7 +224,6 @@ class Authorizenet_recurring extends Authorizenet {
 		// remove xmlns so that the relative uri doesn't cause errors in simplexml
 		$this->response = str_replace('xmlns="AnetApi/xml/v1/schema/AnetApiSchema.xsd"', '', $this->response);
 		$this->response = simplexml_load_string($this->response);
-
 		if (curl_errno($ch)) {
 			return false;
 		}
@@ -313,6 +312,25 @@ class Authorizenet_recurring extends Authorizenet {
 	 */
 	public function getTrxnMode(){
 		return $this->_mode;
+	}
+
+
+	/**
+	 *
+	 * @return <type> 
+	 */
+	public function getCodeNamedResponseArray(){
+
+		$ins						= array();
+		$ins['trxn_type']			= (string)$this->getTrxnMode();
+		$ins['ref_id']				= (int)$this->refId();
+		$ins['result_code']			= (string)$this->resultCode();
+		$ins['response_code']		= (string)$this->responseCode();
+		$ins['response_message']	= (string)$this->responseMessage();
+		$ins['subscription_id']		= (string)$this->subscriptionId();
+		$ins['hash']				= (string)$this->createOrderHash();
+		return $ins;
+
 	}
 }
 ?>
